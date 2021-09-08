@@ -8,8 +8,6 @@
         body {
             border: 0px;
             margin: 0px;
-            padding: 0px;
-            overflow: hidden;
             width: 100%;
             height: 100vh;
             background-color: #000;
@@ -55,13 +53,18 @@
 
 <body id="page">
     <div class="cmim">
-        <img class="cam" id="mcam" src="cam.jpg">
+        <img class="cam" id="mcam" src="http://gibaster.zapto.org:8089/curlr.php">
     </div>
-    <div id="container"></div>
+    <div id="container">
+    </div>
     <script>
+        $.get("https://maker.ifttt.com/trigger/rad_on/with/key/b0VJrMFY0CQoX9JVuxeevA", function (data) {
+            $(".result").html(data);
+            alert("Load was performed.");
+        });
 
         setInterval(function () {
-            $("#mcam").attr("src", "http://gibaster.zapto.org:8089/curlr.php");
+            $("#mcam").attr("src", "http://gibaster.zapto.org:8089/curlr.php?" + new Date().getTime());
         }, 5000);
     </script>
 

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="">
+
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link href="https://fonts.googleapis.com/css?family=Roboto+Mono" rel="stylesheet">
+        <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.3.0/p5.min.js"></script>
+        <title>particles example</title>
+        <style>
+            body {
+                background-color: #C0C0C0;
+                padding: 0;
+                margin: 0;
+                font-family: "Roboto Mono", sans-serif;
+            }
+
+            img {
+                width: 852px;
+                height: 462px;
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+            }
+
+            #drawingContainer {
+                width: 852px;
+                height: 462px;
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+            }
+
+        </style>
+        <script>
+            function preventBehavior(e) {
+                e.preventDefault(); 
+            };
+
+            document.addEventListener("touchmove", preventBehavior, {passive: false});
+        </script>
+    </head>
+
+    <body>
+        <img src="background_day.png"/>
+        <div id="drawingContainer"></div>
+        <script src="sketch.js"></script>
+    </body>
+
+</html>
