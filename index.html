@@ -55,17 +55,13 @@
 
 <body id="page">
     <div class="cmim">
-        <img class="cam" id="mcam" src="http://gibaster.zapto.org:8089/curlr.php">
+        <img class="cam" id="mcam" src="cam.jpg">
     </div>
     <div id="container"></div>
     <script>
-        $.get("https://maker.ifttt.com/trigger/rad_on/with/key/b0VJrMFY0CQoX9JVuxeevA", function (data) {
-            $(".result").html(data);
-            alert("Load was performed.");
-        });
 
         setInterval(function () {
-            $("#mcam").attr("src", "http://gibaster.zapto.org:8089/curlr.php?" + new Date().getTime());
+            $("#mcam").attr("src", "http://gibaster.zapto.org:8089/curlr.php");
         }, 5000);
     </script>
 
