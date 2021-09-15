@@ -27,9 +27,9 @@ function loadAnimation(path, ind1, ind2) {
     }
     frames = [];
     for(var k = 0; k < paths.length; k++){
-        console.log(paths[k]);
         frames.push(loadImage(paths[k]));
     }
+    console.log("loaded")
     return frames
 }
 
@@ -40,7 +40,7 @@ function preload() {
 
 function setup() {
     canvas = createCanvas(800, 500);
-    canvas.parent("container");
+    canvas.parent("drawingContainer");
 
     var par = select("#mcam");
     //canvas.style('z-index', 1000);
@@ -84,11 +84,11 @@ function draw() {
         changeAnim = false;
     }*/
 
-    for(var k = 0; k < particles.length; k++){
+    for(var k = 0; k < particles.length*0+1; k++){
         var gridnum = 30;
         if(k == 2)
             gridnum = 18;
-        particles[k].display(gridnum);
+        particles[2].display(gridnum);
     }
 
     //rotate(radians(+12));
