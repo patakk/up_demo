@@ -217,7 +217,7 @@ function draw() {
         clicked = false;
     }
     
-    if(akt === kruzenje && (akt.previous === kruzenje || akt.previous === ulazak) && akt.currentFrameIdx == 43 && clicked){
+    if(akt === kruzenje && (akt.previous === kruzenje || akt.previous === ulazak) && akt.currentFrameIdx == 41 && clicked){
         akt = akt3;
         akt.currentFrameIdx = 0;
         clicked = false;
