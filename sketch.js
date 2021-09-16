@@ -29,15 +29,19 @@ function loadAnimation(path, ind1, ind2) {
     for(var k = ind1; k <= ind2; k++){
         //var npath = path + String(pad(k, 4)) + ".png";
         if(path == "data/frames_lowres/4_anim_aktivacija_druga/4_ani_" && k == 21)
+        continue;
+        if(path == "data/frames_lowres/6_anim_aktivacija_cetvrta/6_ani_" && k == 87)
+            continue;
+        if(path == "data/frames_lowres/6_anim_aktivacija_cetvrta/6_ani_" && k == 88)
             continue;
         var npath = path + String(k) + ".png";
         paths.push(npath);
     }
     frames = [];
+    print('started loading images')
     for(var k = 0; k < paths.length; k++){
-        frames.push(loadImage(paths[k]));
+        frames.push(loadImage(paths[k], img => {print('bla')} ));
     }
-    console.log("loaded", path)
     return frames
 }
 
@@ -45,6 +49,8 @@ var ulazak;
 var kruzenje;
 var akt1;
 var akt2;
+var akt3;
+var akt4;
 
 var akt;
 
@@ -147,7 +153,8 @@ function preload() {
     kruzenje = new Akt("data/frames_lowres/2_anim_kruzenje/2_ani_", 1, 66);
     akt1 = new Akt("data/frames_lowres/3_anim_aktivacija_prva/3_ani_", 1, 34);
     akt2 = new Akt("data/frames_lowres/4_anim_aktivacija_druga/4_ani_", 1, 67);
-    console.log("LOADED");
+    akt3 = new Akt("data/frames_lowres/5_anim_aktivacija_treca/5_ani_", 1, 55);
+    akt4 = new Akt("data/frames_lowres/6_anim_aktivacija_cetvrta/6_ani_", 1, 100);
 }
 
 function setup() {
@@ -173,9 +180,9 @@ function setup() {
     particles.push(new Particle(2, pts2));
     particles.push(new Particle(3, pts3));
 
-    akt3 = new Pro(particles);
+    pro1 = new Pro(particles);
 
-    frameRate(14);
+    frameRate(12);
 
     akt = ulazak;
 
@@ -183,13 +190,15 @@ function setup() {
     akt1.setNextAkt(kruzenje);
     akt2.setNextAkt(kruzenje);
     akt3.setNextAkt(kruzenje);
+    akt4.setNextAkt(kruzenje);
+    pro1.setNextAkt(kruzenje);
     console.log("STARTED");
 }
 
 function draw() {
+    translate(2, 10);
     clear();
     noStroke();
-    
     fill(0);
 
     if(akt.currentFrameIdx == akt.numFrames && akt !== kruzenje){
@@ -208,9 +217,21 @@ function draw() {
         clicked = false;
     }
     
-    if(akt === kruzenje && (akt.previous === kruzenje || akt.previous === ulazak) && akt.currentFrameIdx == 39 && clicked){
-        akt3.parent = akt;
+    if(akt === kruzenje && (akt.previous === kruzenje || akt.previous === ulazak) && akt.currentFrameIdx == 38 && clicked){
         akt = akt3;
+        akt.currentFrameIdx = 0;
+        clicked = false;
+    }
+    
+    if(akt === kruzenje && (akt.previous === kruzenje || akt.previous === ulazak) && akt.currentFrameIdx == 52 && clicked){
+        akt = akt4;
+        akt.currentFrameIdx = 0;
+        clicked = false;
+    }
+    
+    /*if(akt === kruzenje && (akt.previous === kruzenje || akt.previous === ulazak) && akt.currentFrameIdx == 39 && clicked){
+        pro1.parent = akt;
+        akt = pro1;
         akt.currentFrameIdx = 0;
         clicked = false;
         for (var k = 0; k < akt.particles.length; k++) {
@@ -218,9 +239,9 @@ function draw() {
             akt.particles[k].age = round(random(-20, 0));
         }
         akt.numFrames = 100; // ovaj 100 mora bit varijabla za svaku proceduralnu animaciju
-    }
+    }*/
 
-    if(akt !== akt3){
+    if(akt !== pro1){
         var ss1 = Math.round(2*Math.sin(frameCount*0.1));
         var ss2 = Math.round(-1-1*Math.sin(frameCount*0.1));
         //image(akt.getFrame((akt.currentFrameIdx+akt.numFrames-ss2)%akt.numFrames), 0, 0, width, height);
