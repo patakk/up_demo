@@ -134,7 +134,7 @@ class Pro {
         this.currentFrameIdx++;
         if(this.currentFrameIdx == this.numFrames && this === kruzenje)
             this.currentFrameIdx = 0;
-        this.particles[1].display(24);
+        this.particles[0].display(24);
         if(frameCount % 2 == 0){
             image(this.parent.getFrame(this.parent.currentFrameIdx), 0, 0, width, height);
             filter(ERODE);
@@ -228,8 +228,8 @@ function draw() {
         akt.currentFrameIdx = 0;
         clicked = false;
     }
-    
-    /*if(akt === kruzenje && (akt.previous === kruzenje || akt.previous === ulazak) && akt.currentFrameIdx == 39 && clicked){
+
+    /*if(akt === kruzenje && (akt.previous === kruzenje || akt.previous === ulazak) && akt.currentFrameIdx == 12 && clicked){
         pro1.parent = akt;
         akt = pro1;
         akt.currentFrameIdx = 0;
@@ -264,6 +264,8 @@ function draw() {
         }
         tint(255, 255);
         image(akt.advance(), 0, 0, width, height);
+        if(random() < -0.5)
+            filter(INVERT);
     }
     else{
         akt.advance();
@@ -302,6 +304,7 @@ function draw() {
     vertex(85., 258., 0, 1);
     endShape();*/
 
+    print(round(frameRate()))
     if(ttime == "NIGHT"){
         //filter(INVERT);
     }
