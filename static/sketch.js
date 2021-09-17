@@ -116,6 +116,8 @@ class Pro {
         // this.currentFrame = this.frames[this.currentFrameIdx];
         this.nextAkt = this;
         this.particles = particles;
+        this.particle_ind = 0*floor(random(0, 4));
+        this.numFrames = this.particles[this.particle_ind].lifespan;
     }
 
     setNextAkt(nextAkt){
@@ -126,6 +128,8 @@ class Pro {
         if(this.nextAkt !== kruzenje)
             this.nextAkt.currentFrameIdx = 0;
         this.nextAkt.previous = this;
+        this.particle_ind = 0*floor(random(0, 4));
+        this.numFrames = max(max(this.particles[0].lifespan, this.particles[1].lifespan), max(this.particles[2].lifespan, this.particles[3].lifespan));
         return this.nextAkt;
     }
 
@@ -135,13 +139,16 @@ class Pro {
         this.currentFrameIdx++;
         if(this.currentFrameIdx == this.numFrames && this === kruzenje)
             this.currentFrameIdx = 0;
-        this.particles[0].display(24);
+        this.particles[this.particle_ind].display(24);
+        this.particles[1].display(24);
+        this.particles[2].display(24);
+        this.particles[3].display(24);
         if(frameCount % 2 == 0){
-            image(this.parent.getFrame(this.parent.currentFrameIdx), 0, 0, width, height);
-            filter(ERODE);
+            //image(this.parent.getFrame(this.parent.currentFrameIdx), shiftx, shifty, width, height);
+            //filter(ERODE);
         }
         else{
-            image(this.parent.getFrame(this.parent.currentFrameIdx), 0, 0, width, height);
+            //image(this.parent.getFrame(this.parent.currentFrameIdx), shiftx, shifty, width, height);
         }
     }
 
@@ -150,18 +157,19 @@ class Pro {
 
 
 function preload() {
+    background_image = loadImage('static/background_image.jpg')
     ulazak = new Akt("static/data/frames_lowres/1_anim_ulazak/1_ani_", 1, 60);
     kruzenje = new Akt("static/data/frames_lowres/2_anim_kruzenje/2_ani_", 1, 66);
     akt1 = new Akt("static/data/frames_lowres/3_anim_aktivacija_prva/3_ani_", 1, 34);
     akt2 = new Akt("static/data/frames_lowres/4_anim_aktivacija_druga/4_ani_", 1, 67);
     akt3 = new Akt("static/data/frames_lowres/5_anim_aktivacija_treca/5_ani_", 1, 55);
     akt4 = new Akt("static/data/frames_lowres/6_anim_aktivacija_cetvrta/6_ani_", 1, 100);
-    background_image = loadImage('static/background_image.jpg')
 }
 
 function setup() {
-    canvas = createCanvas(800, 500);
+    canvas = createCanvas(905, 500);
     canvas.parent("drawingContainer");
+
 
     var par = select("#mcam");
     //canvas.style('z-index', 1000);
@@ -169,6 +177,7 @@ function setup() {
     var pheight = par.size()["height"]
 
     resizeCanvas(pwidth, pheight);
+    background_image.resize(pwidth, pheight);
 
     rectMode(CENTER);
 
@@ -197,8 +206,11 @@ function setup() {
     console.log("STARTED");
 }
 
+const shiftx = 2;
+const shifty = 10;
+
 function draw() {
-    translate(2, 10);
+    translate(shiftx, shifty);
     clear();
     noStroke();
     fill(0);
@@ -231,8 +243,9 @@ function draw() {
         clicked = false;
     }
 
-    /*if(akt === kruzenje && (akt.previous === kruzenje || akt.previous === ulazak) && akt.currentFrameIdx == 12 && clicked){
+    if(akt === kruzenje && (akt.previous === kruzenje || akt.previous === ulazak) && akt.currentFrameIdx == 12 && clicked){
         pro1.parent = akt;
+        //pro1.parent.currentFrameIdx = (pro1.parent.currentFrameIdx + pro1.parent.numFrames - 1)%pro1.parent.numFrames;
         akt = pro1;
         akt.currentFrameIdx = 0;
         clicked = false;
@@ -241,7 +254,7 @@ function draw() {
             akt.particles[k].age = round(random(-20, 0));
         }
         akt.numFrames = 100; // ovaj 100 mora bit varijabla za svaku proceduralnu animaciju
-    }*/
+    }
 
     if(akt !== pro1){
         var ss1 = Math.round(2*Math.sin(frameCount*0.1));
@@ -271,6 +284,18 @@ function draw() {
     }
     else{
         akt.advance();
+        if(frameBuffer.length == bufferSize && (ghost == true || true)){
+            tint(255, 100, 200, random(50, 220) + 0*(0.5 + 0.5*sin(frameCount*0.2)));
+            image(frameBuffer[bufferSize-1], 0, 0, width, height);
+            if(random() < -0.5)
+                filter(INVERT);
+            tint(255, 200, 100, random(50, 220) + 0*(0.5 + 0.5*sin(frameCount*0.2)));
+            image(frameBuffer[bufferSize-2], 0, 0, width, height);
+            if(random() < -0.5)
+                filter(INVERT);
+            //filter(BLUR, 1);
+        }
+        tint(255, 255);
     }
 
     /*
@@ -310,8 +335,6 @@ function draw() {
     if(ttime == "NIGHT"){
         //filter(INVERT);
     }
-
-    image(background_image, 100, 100, 200, 50);
 }
 
 function power(p, g) {
@@ -367,16 +390,7 @@ class Particle {
         this.displayFlag = false;
         this.lifespan = round(random(80, 100));
         this.pts = pts;
-    }
-
-    display(gridnum) {
-        if (!this.displayFlag)
-            return;
-
-        this.age += 1;
-
-        if(this.age < 0)
-            return;
+        this.b = 0;
 
         var x0 = this.pts[0] * width;
         var y0 = this.pts[1] * height;
@@ -386,23 +400,12 @@ class Particle {
         var y2 = this.pts[5] * height;
         var x3 = this.pts[6] * width;
         var y3 = this.pts[7] * height;
-        
-        noStroke();
-        resetMatrix();
-        //translate(width/2, height/2);
-        var fac = 1;
-        if (this.age-1 <= 10)
-            fac = (this.age-1) / 10;
-        if (this.age-1 > this.lifespan-10)
-            fac = 1 - ((this.age-1) - (this.lifespan - 10)) / 10;
-        for(var y = -248; y <= +248; y += gridnum){
-            for (var x =  -248; x <= +248; x += gridnum) {
 
-                if(random(1) > pow(fac, 2))
-                    continue;
-
-                var px = map(x, -248, 248, 0, 1);
-                var py = map(y, -248, 248, 0, 1);
+        this.points = []
+        for(var y = 0; y <= 1.0; y += 0.02){
+            for(var x = 0; x <= 1.0; x += 0.02){
+                var px = x;
+                var py = y;
 
                 var xx1 = lerp(x0, x1, px);
                 var yy1 = lerp(y0, y1, px);
@@ -411,43 +414,48 @@ class Particle {
 
                 var xx = lerp(xx1, xx2, py);
                 var yy = lerp(yy1, yy2, py);
+                
+                var col = background_image.get(Math.round(xx), Math.round(yy));
 
-                var sx = random(2, 3) * 1.3;
-                var sy = random(2, 3) * 1.3;
-
-                if (ttime == "DAY") {
-                    fill(40);
-                }
-                else {
-                    fill(40);
-                }
-                noStroke();
-                //ellipse(xx + random(-1, +1), yy + random(-1, +1), sx, sy);
-
-                if (ttime == "DAY") {
-                    stroke(0);
-                }
-                else {
-                    stroke(0);
-                }
-                strokeWeight(2);
-
-                noFill();
-                /*beginShape();
-                for(var part = 0; part < fac*6; part++){
-                    var vx = xx;
-                    var vy = yy - 20;
-                    vertex(vx+random(-1,1), vy+random(-1,1));
-                }
-                endShape();*/
-                line(xx + random(-1, +1), yy + random(-1, +1), xx + random(-1, +1), yy + random(-1, +1)-20*fac);
-
+                this.points.push([xx, yy, col, px, py]);
             }
         }
+    }
 
-        if(this.age >= this.lifespan){
-            this.displayFlag = false;
-            this.lifespan = round(random(50, 100));
+    display(gridnum) {
+
+        gridnum = gridnum*2;
+        this.age += 1;
+
+        noStroke();
+        resetMatrix();
+
+        if(this.age < 0)
+            return;
+        
+        //translate(width/2, height/2);
+        var fac = 1;
+        if (this.age-1 <= 10)
+            fac = (this.age-1) / 10;
+        if (this.age-1 > this.lifespan-10)
+            fac = 1 - ((this.age-1) - (this.lifespan - 10)) / 10;
+        
+        noStroke();
+        for(var k = 0; k < this.points.length; k++){
+            var x = this.points[k][0];
+            var y = this.points[k][1];
+            var col = this.points[k][2];
+            var px = this.points[k][3];
+            var py = this.points[k][4];
+            var rr = red(col);
+            var gg = green(col);
+            var bb = blue(col);
+            var aa = alpha(col);
+            fill(rr, gg, bb, aa*fac);
+            var rx = 0*random(-2,2);
+            var ry = 0*random(-2,2) - 1.0*k/this.points.length*50*random(fac);
+            ry = py*fac*(25 + 25*cos(2*3.14*py*py+2*px-1+(0.5+(1-py)*0.5)*frameCount*0.3));
+            ellipse(x+rx, y-ry, 5, 5);
         }
     }
 }
