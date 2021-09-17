@@ -1,5 +1,4 @@
 
-console.log("hello");
 var canvas;
 var anims = [];
 var anim1;
@@ -28,11 +27,11 @@ function loadAnimation(path, ind1, ind2) {
     var paths = [];
     for(var k = ind1; k <= ind2; k++){
         //var npath = path + String(pad(k, 4)) + ".png";
-        if(path == "data/frames_lowres/4_anim_aktivacija_druga/4_ani_" && k == 21)
+        if(path == "static/data/frames_lowres/4_anim_aktivacija_druga/4_ani_" && k == 21)
         continue;
-        if(path == "data/frames_lowres/6_anim_aktivacija_cetvrta/6_ani_" && k == 87)
+        if(path == "static/data/frames_lowres/6_anim_aktivacija_cetvrta/6_ani_" && k == 87)
             continue;
-        if(path == "data/frames_lowres/6_anim_aktivacija_cetvrta/6_ani_" && k == 88)
+        if(path == "static/data/frames_lowres/6_anim_aktivacija_cetvrta/6_ani_" && k == 88)
             continue;
         var npath = path + String(k) + ".png";
         paths.push(npath);
@@ -149,12 +148,12 @@ class Pro {
 
 
 function preload() {
-    ulazak = new Akt("data/frames_lowres/1_anim_ulazak/1_ani_", 1, 60);
-    kruzenje = new Akt("data/frames_lowres/2_anim_kruzenje/2_ani_", 1, 66);
-    akt1 = new Akt("data/frames_lowres/3_anim_aktivacija_prva/3_ani_", 1, 34);
-    akt2 = new Akt("data/frames_lowres/4_anim_aktivacija_druga/4_ani_", 1, 67);
-    akt3 = new Akt("data/frames_lowres/5_anim_aktivacija_treca/5_ani_", 1, 55);
-    akt4 = new Akt("data/frames_lowres/6_anim_aktivacija_cetvrta/6_ani_", 1, 100);
+    ulazak = new Akt("static/data/frames_lowres/1_anim_ulazak/1_ani_", 1, 60);
+    kruzenje = new Akt("static/data/frames_lowres/2_anim_kruzenje/2_ani_", 1, 66);
+    akt1 = new Akt("static/data/frames_lowres/3_anim_aktivacija_prva/3_ani_", 1, 34);
+    akt2 = new Akt("static/data/frames_lowres/4_anim_aktivacija_druga/4_ani_", 1, 67);
+    akt3 = new Akt("static/data/frames_lowres/5_anim_aktivacija_treca/5_ani_", 1, 55);
+    akt4 = new Akt("static/data/frames_lowres/6_anim_aktivacija_cetvrta/6_ani_", 1, 100);
 }
 
 function setup() {
