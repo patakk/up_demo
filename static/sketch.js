@@ -10,6 +10,8 @@ var changeAnim = false;
 
 var particles = [];
 
+var background_image;
+
 var ttime = "DAY";
 
 var frameBuffer = [];
@@ -154,6 +156,7 @@ function preload() {
     akt2 = new Akt("static/data/frames_lowres/4_anim_aktivacija_druga/4_ani_", 1, 67);
     akt3 = new Akt("static/data/frames_lowres/5_anim_aktivacija_treca/5_ani_", 1, 55);
     akt4 = new Akt("static/data/frames_lowres/6_anim_aktivacija_cetvrta/6_ani_", 1, 100);
+    background_image = loadImage('static/background_image.jpg')
 }
 
 function setup() {
@@ -307,6 +310,8 @@ function draw() {
     if(ttime == "NIGHT"){
         //filter(INVERT);
     }
+
+    image(background_image, 100, 100, 200, 50);
 }
 
 function power(p, g) {
