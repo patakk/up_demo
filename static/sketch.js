@@ -25,6 +25,20 @@ function pad(n, width, z) {
     return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
 }
 
+function fadeOutEffect() {
+    var fadeTarget = document.getElementById("loading");
+    var fadeEffect = setInterval(function () {
+        if (!fadeTarget.style.opacity) {
+            fadeTarget.style.opacity = 1;
+        }
+        if (fadeTarget.style.opacity > 0) {
+            fadeTarget.style.opacity -= 0.25;
+        } else {
+            clearInterval(fadeEffect);
+        }
+    }, 200);
+}
+
 function loadAnimation(path, ind1, ind2) {
     var paths = [];
     for(var k = ind1; k <= ind2; k++){
@@ -205,8 +219,9 @@ function setup() {
     pro1.setNextAkt(kruzenje);
     console.log("STARTED");
     
-    let loading_anim = select("#loading");
-    loading_anim.hide();
+    // let loading_anim = select("#loading");
+    // loading_anim.hide();
+    fadeOutEffect();
 }
 
 const shiftx = 2;
@@ -247,7 +262,7 @@ function draw() {
         clicked = false;
     }
 
-    if(akt === kruzenje && (akt.previous === kruzenje || akt.previous === ulazak) && akt.currentFrameIdx == 12 && clicked){
+    if(akt === kruzenje && (akt.previous === kruzenje || akt.previous === ulazak) && akt.currentFrameIdx == 12 && clicked && false){
         pro1.parent = akt;
         //pro1.parent.currentFrameIdx = (pro1.parent.currentFrameIdx + pro1.parent.numFrames - 1)%pro1.parent.numFrames;
         akt = pro1;
