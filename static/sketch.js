@@ -204,12 +204,16 @@ function setup() {
     akt4.setNextAkt(kruzenje);
     pro1.setNextAkt(kruzenje);
     console.log("STARTED");
+    
+    let loading_anim = select("#loading");
+    loading_anim.hide();
 }
 
 const shiftx = 2;
 const shifty = 10;
 
 function draw() {
+
     translate(shiftx, shifty);
     clear();
     noStroke();

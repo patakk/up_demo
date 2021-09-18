@@ -16,13 +16,22 @@
                 font-family: "Roboto Mono", sans-serif;
             }
 
-            img {
+            #mcam {
                 width: 905px;
                 height: 500px;
                 position: absolute;
                 top: 50%;
                 left: 50%;
                 transform: translate(-50%, -50%);
+            }
+
+            #loading {
+                width: 160px;
+                height: 100px;
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -58%);
             }
 
             #drawingContainer {
@@ -46,6 +55,7 @@
 
     <body>
         <img id="mcam" src="http://gibaster.zapto.org:8089/curlr.php"/>
+        <img id="loading" src="static/loading.gif"/>
         <div id="drawingContainer"></div>
         <script src="static/sketch.js"></script>
     </body>
