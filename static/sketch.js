@@ -432,6 +432,10 @@ function mouseClicked() {
     print(mouseX, mouseY);
 }
 
+function touchStarted() {
+    clicked = true;
+}
+
 
 class Particle {
     constructor(idx, pts) {
