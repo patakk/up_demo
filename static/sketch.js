@@ -57,6 +57,7 @@ function loadAnimation(path, ind1, ind2) {
     for(var k = 0; k < paths.length; k++){
         frames.push(loadImage(paths[k], img => {} ));
     }
+    print('ended')
     return frames
 }
 
@@ -67,17 +68,23 @@ var akt2;
 var akt3;
 var akt4;
 
+var ulazak_gif;
+var kruzenje_gif;
+var akt1_gif;
+var akt2_gif;
+var akt3_gif;
+var akt4_gif;
+
 var akt;
 
 var clicked = false;
 
+
 class Akt {
-    constructor(prefix, fs, fe) {
-        this.prefix = prefix;
-        this.fs = fs;
-        this.fe = fe;
-        this.frames = loadAnimation(this.prefix, this.fs, this.fe);
-        this.numFrames = this.frames.length;
+    constructor(gif) {
+        this.gif = gif;
+        // this.frames = loadAnimation(this.prefix, this.fs, this.fe);
+        this.numFrames = this.gif.numFrames();
         this.currentFrameIdx = 0;
         // this.currentFrame = this.frames[this.currentFrameIdx];
         this.nextAkt = this;
@@ -100,23 +107,24 @@ class Akt {
         this.currentFrameIdx++;
         if(this.currentFrameIdx == this.numFrames && this === kruzenje)
             this.currentFrameIdx = 0;
-        frameBuffer.push(this.frames[idx]);
-        if(frameBuffer.length == bufferSize+1)
-            frameBuffer.shift();
-        return this.frames[idx];
+        //frameBuffer.push(this.frames[idx]);
+        //if(frameBuffer.length == bufferSize+1)
+        //    frameBuffer.shift();
+        this.gif.setFrame(idx)
+        return this.gif;
     }
 
     getFrame(idx){
         if(idx === null){
-            frameBuffer.push(this.frames[this.currentFrameIdx]);
-            if(frameBuffer.length == bufferSize+1)
-                frameBuffer.shift();
+            //frameBuffer.push(this.frames[this.currentFrameIdx]);
+            //if(frameBuffer.length == bufferSize+1)
+            //    frameBuffer.shift();
             return this.frames[this.currentFrameIdx];
         }
         else{
-            frameBuffer.push(this.frames[idx]);
-            if(frameBuffer.length == bufferSize+1)
-                frameBuffer.shift();
+            //frameBuffer.push(this.frames[idx]);
+            //if(frameBuffer.length == bufferSize+1)
+            //    frameBuffer.shift();
             return this.frames[idx];
         }
     }
@@ -165,25 +173,25 @@ class Pro {
             //image(this.parent.getFrame(this.parent.currentFrameIdx), shiftx, shifty, width, height);
         }
     }
-
-
 }
-
 
 function preload() {
     background_image = loadImage('static/background_image.jpg')
-    ulazak = new Akt("static/data/frames_lowres/1_anim_ulazak/1_ani_", 1, 60);
-    kruzenje = new Akt("static/data/frames_lowres/2_anim_kruzenje/2_ani_", 1, 66);
-    akt1 = new Akt("static/data/frames_lowres/3_anim_aktivacija_prva/3_ani_", 1, 34);
-    akt2 = new Akt("static/data/frames_lowres/4_anim_aktivacija_druga/4_ani_", 1, 67);
-    akt3 = new Akt("static/data/frames_lowres/5_anim_aktivacija_treca/5_ani_", 1, 55);
-    akt4 = new Akt("static/data/frames_lowres/6_anim_aktivacija_cetvrta/6_ani_", 1, 100);
+    ulazak_gif = loadImage("static/1_anim_ulazak.gif");
+    kruzenje_gif = loadImage("static/2_anim_kruzenje.gif");
+    akt1_gif = loadImage("static/3_anim_aktivacija_prva.gif");
+    akt2_gif = loadImage("static/4_anim_aktivacija_druga.gif");
+    akt3_gif = loadImage("static/5_anim_aktivacija_treca.gif");
+    akt4_gif = loadImage("static/6_anim_aktivacija_cetvrta.gif");
 }
+
+
+var shiftx = 2;
+var shifty = 10;
 
 function setup() {
     canvas = createCanvas(905, 500);
     canvas.parent("drawingContainer");
-
 
     var par = select("#mcam");
     //canvas.style('z-index', 1000);
@@ -191,17 +199,32 @@ function setup() {
     var pheight = par.size()["height"]
 
     if(windowWidth < windowHeight){
+        om = 1.0*pwidth/pheight;
         pwidth = windowWidth;
-        om = 1.0*width/height;
         pheight = round(pwidth/om);
+        console.log(par.size())
         select("#drawingContainer").size(pwidth, pheight)
         select("#mcam").size(pwidth, pheight)
+        console.log(par.size())
+
     }
+
+    select("#drawingContainer").size(pwidth, pheight)
+    select("#mcam").size(pwidth, pheight)
+    shiftx = round(shiftx * pwidth/905.);
+    shifty = round(shifty * pwidth/905.);
 
     resizeCanvas(pwidth, pheight);
     background_image.resize(pwidth, pheight);
 
     rectMode(CENTER);
+    
+    ulazak = new Akt(ulazak_gif);
+    kruzenje = new Akt(kruzenje_gif);
+    akt1 = new Akt(akt1_gif);
+    akt2 = new Akt(akt2_gif);
+    akt3 = new Akt(akt3_gif);
+    akt4 = new Akt(akt4_gif);
 
     var pts0 = [0.36842105, 0.42207792, 0.37200957, 0.50865801, 0.22966507, 0.60606061, 0.25239234, 0.4025974];
     var pts1 = [0.67344498, 0.42640693, 0.64712919, 0.35714286, 0.7284689, 0.3030303, 0.81220096, 0.45454545];
@@ -231,9 +254,6 @@ function setup() {
     // loading_anim.hide();
     fadeOutEffect();
 }
-
-const shiftx = 2;
-const shifty = 10;
 
 function draw() {
 
@@ -293,7 +313,7 @@ function draw() {
             tint(255, 100 + 0*(0.5 + 0.5*sin(frameCount*0.2)));
             image(frameBuffer[bufferSize-3], 0, 0, width, height);
         }*/
-        if(frameBuffer.length == bufferSize && ghost == true){
+        if(frameBuffer.length == bufferSize && ghost == true && false){
             tint(255, 100, 200, random(50, 220) + 0*(0.5 + 0.5*sin(frameCount*0.2)));
             image(frameBuffer[bufferSize-1], 0, 0, width, height);
             if(random() < -0.5)
@@ -311,7 +331,7 @@ function draw() {
     }
     else{
         akt.advance();
-        if(frameBuffer.length == bufferSize && (ghost == true || true)){
+        if(frameBuffer.length == bufferSize && (ghost == true || true) && false){
             tint(255, 100, 200, random(50, 220) + 0*(0.5 + 0.5*sin(frameCount*0.2)));
             image(frameBuffer[bufferSize-1], 0, 0, width, height);
             if(random() < -0.5)
