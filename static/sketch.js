@@ -252,7 +252,9 @@ function setup() {
     
     // let loading_anim = select("#loading");
     // loading_anim.hide();
-    fadeOutEffect();
+    select("#mcam").style('opacity', 1.0);
+    //select("#loading").style('opacity', 0.0);
+    // fadeOutEffect();
 }
 
 function draw() {

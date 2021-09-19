@@ -24,6 +24,7 @@
                 top: 50%;
                 left: 50%;
                 transform: translate(-50%, -50%);
+                opacity: 0;
             }
 
             #loading {
@@ -32,6 +33,7 @@
                 position: absolute;
                 top: 50%;
                 left: 50%;
+                filter: invert(1);
                 transform: translate(-50%, -58%);
             }
 
@@ -52,6 +54,7 @@
                     top: 50%;
                     left: 50%;
                     transform: translate(-50%, -50%);
+                    opacity: 0;
                 }
             }
 
@@ -62,12 +65,23 @@
             };
 
             document.addEventListener("touchmove", preventBehavior, {passive: false});
+            var flag = false;
+
+            /*function showLoading(){
+                if(flag)
+                    document.getElementById("loading").style.opacity = 0;
+                else
+                    document.getElementById("loading").style.opacity = 1;
+                flag = !flag;
+            }
+
+            setInterval(showLoading, 200);*/
         </script>
     </head>
 
     <body>
         <img id="mcam" src="http://gibaster.zapto.org:8089/curlr.php"/>
-        <img id="loading" src="static/loading.gif"/>
+        <div id="p5_loading" class="loadingclass"><img id="loading" src="static/loading.png"/></div>
         <div id="drawingContainer"></div>
         <script src="static/sketch.js"></script>
     </body>
