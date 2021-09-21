@@ -225,6 +225,9 @@ var shifty = 10;
 
 function setup() {
     canvas = createCanvas(905, 500);
+
+    // canvas.drawingContext.globalCompositeOperation = 'multiply';
+
     canvas.parent("drawingContainer");
 
     var par = select("#mcam");
@@ -419,7 +422,7 @@ function draw() {
     else{
         blendMode(BLEND);
         akt.advance();
-        blendMode(MULTIPLY);
+        //blendMode(MULTIPLY);
         image(akt.idle.advance(), 0, 0, width, height);
         if(frameBuffer.length == bufferSize && (ghost == true || true) && false){
             tint(255, 100, 200, random(50, 220) + 0*(0.5 + 0.5*sin(frameCount*0.2)));
