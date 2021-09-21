@@ -9,13 +9,13 @@ app = Flask(__name__)
 
 @app.route("/")
 def hello():
-    '''response = requests.get('http://gibaster.zapto.org:8089/curlr.php')
+    response = requests.get('http://gibaster.zapto.org:8089/curlr.php')
     imgstring = response.content
 
     imgdata = base64.b64decode(imgstring)
     filename = 'static/background_image.jpg'
     with open(filename, 'wb') as f:
-        f.write(response.content)'''
+        f.write(response.content)
 
     return render_template('index.html')
 

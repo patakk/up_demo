@@ -67,6 +67,15 @@ var akt1;
 var akt2;
 var akt3;
 var akt4;
+var idle1;
+var idle2;
+var idle3;
+var idle4;
+
+var pro1;
+var pro2;
+var pro3;
+var pro4;
 
 var ulazak_gif;
 var kruzenje_gif;
@@ -74,6 +83,10 @@ var akt1_gif;
 var akt2_gif;
 var akt3_gif;
 var akt4_gif;
+var idle1_gif;
+var idle2_gif;
+var idle3_gif;
+var idle4_gif;
 
 var akt;
 
@@ -105,7 +118,7 @@ class Akt {
         this.previous = this;
         var idx = this.currentFrameIdx;
         this.currentFrameIdx++;
-        if(this.currentFrameIdx == this.numFrames && this === kruzenje)
+        if(this.currentFrameIdx == this.numFrames && (this === kruzenje || this === idle1 || this === idle2 || this === idle3 || this === idle4))
             this.currentFrameIdx = 0;
         //frameBuffer.push(this.frames[idx]);
         //if(frameBuffer.length == bufferSize+1)
@@ -132,13 +145,14 @@ class Akt {
 
 
 class Pro {
-    constructor(particles) {
+    constructor(idle, particles) {
         this.numFrames = 14*4;
         this.currentFrameIdx = 0;
         // this.currentFrame = this.frames[this.currentFrameIdx];
         this.nextAkt = this;
         this.particles = particles;
         this.particle_ind = 0*floor(random(0, 4));
+        this.idle = idle;
         this.numFrames = this.particles[this.particle_ind].lifespan;
     }
 
@@ -151,7 +165,7 @@ class Pro {
             this.nextAkt.currentFrameIdx = 0;
         this.nextAkt.previous = this;
         this.particle_ind = 0*floor(random(0, 4));
-        this.numFrames = max(max(this.particles[0].lifespan, this.particles[1].lifespan), max(this.particles[2].lifespan, this.particles[3].lifespan));
+        this.numFrames = this.particles[0].lifespan;
         return this.nextAkt;
     }
 
@@ -161,10 +175,7 @@ class Pro {
         this.currentFrameIdx++;
         if(this.currentFrameIdx == this.numFrames && this === kruzenje)
             this.currentFrameIdx = 0;
-        this.particles[this.particle_ind].display(24);
-        this.particles[1].display(24);
-        this.particles[2].display(24);
-        this.particles[3].display(24);
+        //this.particles[this.particle_ind].display(24);
         if(frameCount % 2 == 0){
             //image(this.parent.getFrame(this.parent.currentFrameIdx), shiftx, shifty, width, height);
             //filter(ERODE);
@@ -175,14 +186,37 @@ class Pro {
     }
 }
 
+/*
+function toDataURL(url, callback) {
+    var xhr = new XMLHttpRequest();
+    xhr.onload = function() {
+        var reader = new FileReader();
+        reader.onloadend = function() {
+        callback(reader.result);
+        }
+        reader.readAsDataURL(xhr.response);
+    };
+    xhr.open('GET', url);
+    xhr.responseType = 'blob';
+    xhr.send();
+}
+  
+toDataURL('http://gibaster.zapto.org:8089/curlr.php', function(dataUrl) {
+    console.log('RESULT:', dataUrl)
+})*/
+
 function preload() {
     background_image = loadImage('static/background_image.jpg')
-    ulazak_gif = loadImage("static/1_anim_ulazak.gif");
-    kruzenje_gif = loadImage("static/2_anim_kruzenje.gif");
-    akt1_gif = loadImage("static/3_anim_aktivacija_prva.gif");
-    akt2_gif = loadImage("static/4_anim_aktivacija_druga.gif");
-    akt3_gif = loadImage("static/5_anim_aktivacija_treca.gif");
-    akt4_gif = loadImage("static/6_anim_aktivacija_cetvrta.gif");
+    ulazak_gif = loadImage("static/1_white_ulazak.gif");
+    kruzenje_gif = loadImage("static/2_white_kruzenje.gif");
+    akt1_gif = loadImage("static/3_white_aktivacija_prva.gif");
+    akt2_gif = loadImage("static/4_white_aktivacija_druga.gif");
+    akt3_gif = loadImage("static/5_white_aktivacija_treca.gif");
+    akt4_gif = loadImage("static/6_white_aktivacija_cetvrta.gif");
+    idle1_gif = loadImage("static/idle_11.gif");
+    idle2_gif = loadImage("static/idle_34.gif");
+    idle3_gif = loadImage("static/idle_46.gif");
+    idle4_gif = loadImage("static/idle_62.gif");
 }
 
 
@@ -225,20 +259,27 @@ function setup() {
     akt2 = new Akt(akt2_gif);
     akt3 = new Akt(akt3_gif);
     akt4 = new Akt(akt4_gif);
+    idle1 = new Akt(idle1_gif);
+    idle2 = new Akt(idle2_gif);
+    idle3 = new Akt(idle3_gif);
+    idle4 = new Akt(idle4_gif);
 
     var pts0 = [0.36842105, 0.42207792, 0.37200957, 0.50865801, 0.22966507, 0.60606061, 0.25239234, 0.4025974];
     var pts1 = [0.67344498, 0.42640693, 0.64712919, 0.35714286, 0.7284689, 0.3030303, 0.81220096, 0.45454545];
     var pts2 = [0.51076555, 0.59307359, 0.6076555, 0.57142857, 0.73564593, 0.72943723, 0.46889952, 0.82467532];
     var pts3 = [0.53110048, 0.30952381, 0.45574163, 0.32467532, 0.4007177, 0.25541126, 0.55023923, 0.23160173];
     
-    particles.push(new Particle(0, pts0));
-    particles.push(new Particle(1, pts1));
-    particles.push(new Particle(2, pts2));
-    particles.push(new Particle(3, pts3));
+    // particles.push(new Particle(0, pts0));
+    // particles.push(new Particle(1, pts1));
+    // particles.push(new Particle(2, pts2));
+    // particles.push(new Particle(3, pts3));
 
-    pro1 = new Pro(particles);
+    pro1 = new Pro(idle1, [new Particle(0, pts0)]);
+    pro2 = new Pro(idle2, [new Particle(1, pts1)]);
+    pro3 = new Pro(idle3, [new Particle(2, pts2)]);
+    pro4 = new Pro(idle4, [new Particle(3, pts3)]);
 
-    frameRate(12);
+    frameRate(10);
 
     akt = ulazak;
 
@@ -248,6 +289,9 @@ function setup() {
     akt3.setNextAkt(kruzenje);
     akt4.setNextAkt(kruzenje);
     pro1.setNextAkt(kruzenje);
+    pro2.setNextAkt(kruzenje);
+    pro3.setNextAkt(kruzenje);
+    pro4.setNextAkt(kruzenje);
     console.log("STARTED");
     
     // let loading_anim = select("#loading");
@@ -259,10 +303,15 @@ function setup() {
 
 function draw() {
 
-    translate(shiftx, shifty);
     clear();
     noStroke();
     fill(0);
+
+    
+    blendMode(MULTIPLY);
+    image(background_image, 0, 0, width, height);
+
+    translate(shiftx, shifty);
 
     if(akt.currentFrameIdx == akt.numFrames && akt !== kruzenje){
         akt = akt.getNextAkt();
@@ -292,7 +341,7 @@ function draw() {
         clicked = false;
     }
 
-    if(akt === kruzenje && (akt.previous === kruzenje || akt.previous === ulazak) && akt.currentFrameIdx == 12 && clicked && false){
+    if(akt === kruzenje && (akt.previous === kruzenje || akt.previous === ulazak) && akt.currentFrameIdx == 10 && clicked){
         pro1.parent = akt;
         //pro1.parent.currentFrameIdx = (pro1.parent.currentFrameIdx + pro1.parent.numFrames - 1)%pro1.parent.numFrames;
         akt = pro1;
@@ -302,10 +351,46 @@ function draw() {
             akt.particles[k].displayFlag = true;
             akt.particles[k].age = round(random(-20, 0));
         }
-        akt.numFrames = 100; // ovaj 100 mora bit varijabla za svaku proceduralnu animaciju
+        akt.numFrames = 20; // ovaj 100 mora bit varijabla za svaku proceduralnu animaciju
+    }
+    if(akt === kruzenje && (akt.previous === kruzenje || akt.previous === ulazak) && akt.currentFrameIdx == 33 && clicked){
+        pro2.parent = akt;
+        //pro2.parent.currentFrameIdx = (pro2.parent.currentFrameIdx + pro2.parent.numFrames - 1)%pro2.parent.numFrames;
+        akt = pro2;
+        akt.currentFrameIdx = 0;
+        clicked = false;
+        for (var k = 0; k < akt.particles.length; k++) {
+            akt.particles[k].displayFlag = true;
+            akt.particles[k].age = round(random(-20, 0));
+        }
+        akt.numFrames = 20; // ovaj 100 mora bit varijabla za svaku proceduralnu animaciju
+    }
+    if(akt === kruzenje && (akt.previous === kruzenje || akt.previous === ulazak) && akt.currentFrameIdx == 45 && clicked){
+        pro3.parent = akt;
+        //pro3.parent.currentFrameIdx = (pro3.parent.currentFrameIdx + pro3.parent.numFrames - 1)%pro3.parent.numFrames;
+        akt = pro3;
+        akt.currentFrameIdx = 0;
+        clicked = false;
+        for (var k = 0; k < akt.particles.length; k++) {
+            akt.particles[k].displayFlag = true;
+            akt.particles[k].age = round(random(-20, 0));
+        }
+        akt.numFrames = 20; // ovaj 100 mora bit varijabla za svaku proceduralnu animaciju
+    }
+    if(akt === kruzenje && (akt.previous === kruzenje || akt.previous === ulazak) && akt.currentFrameIdx == 61 && clicked){
+        pro4.parent = akt;
+        //pro4.parent.currentFrameIdx = (pro4.parent.currentFrameIdx + pro4.parent.numFrames - 1)%pro4.parent.numFrames;
+        akt = pro4;
+        akt.currentFrameIdx = 0;
+        clicked = false;
+        for (var k = 0; k < akt.particles.length; k++) {
+            akt.particles[k].displayFlag = true;
+            akt.particles[k].age = round(random(-20, 0));
+        }
+        akt.numFrames = 20; // ovaj 100 mora bit varijabla za svaku proceduralnu animaciju
     }
 
-    if(akt !== pro1){
+    if(akt !== pro1 && akt !== pro2 && akt !== pro3 && akt !== pro4){
         var ss1 = Math.round(2*Math.sin(frameCount*0.1));
         var ss2 = Math.round(-1-1*Math.sin(frameCount*0.1));
         //image(akt.getFrame((akt.currentFrameIdx+akt.numFrames-ss2)%akt.numFrames), 0, 0, width, height);
@@ -326,13 +411,16 @@ function draw() {
                 filter(INVERT);
             //filter(BLUR, 1);
         }
-        tint(255, 255);
+        //tint(255, 255);
         image(akt.advance(), 0, 0, width, height);
         if(random() < -0.5)
             filter(INVERT);
     }
     else{
+        blendMode(BLEND);
         akt.advance();
+        blendMode(MULTIPLY);
+        image(akt.idle.advance(), 0, 0, width, height);
         if(frameBuffer.length == bufferSize && (ghost == true || true) && false){
             tint(255, 100, 200, random(50, 220) + 0*(0.5 + 0.5*sin(frameCount*0.2)));
             image(frameBuffer[bufferSize-1], 0, 0, width, height);
