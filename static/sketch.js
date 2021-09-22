@@ -18,6 +18,8 @@ var frameBuffer = [];
 var bufferSize = 4;
 
 var ghost = false;
+var sca = 1;
+var effect_trans = 20;
 
 function pad(n, width, z) {
     z = z || '0';
@@ -120,7 +122,7 @@ class Akt {
         this.currentFrameIdx++;
         if(this.currentFrameIdx == this.numFrames && (this === kruzenje || this === idle1 || this === idle2 || this === idle3 || this === idle4))
             this.currentFrameIdx = 0;
-        //frameBuffer.push(this.frames[idx]);
+        //frameBuffer.push(this.gif);
         //if(frameBuffer.length == bufferSize+1)
         //    frameBuffer.shift();
         this.gif.setFrame(idx)
@@ -145,15 +147,13 @@ class Akt {
 
 
 class Pro {
-    constructor(idle, particles) {
-        this.numFrames = 14*4;
+    constructor(idle, effect) {
         this.currentFrameIdx = 0;
         // this.currentFrame = this.frames[this.currentFrameIdx];
         this.nextAkt = this;
-        this.particles = particles;
-        this.particle_ind = 0*floor(random(0, 4));
+        this.effect = effect;
         this.idle = idle;
-        this.numFrames = this.particles[this.particle_ind].lifespan;
+        this.numFrames = this.effect.duration;
     }
 
     setNextAkt(nextAkt){
@@ -161,11 +161,10 @@ class Pro {
     }
     
     getNextAkt(){
-        if(this.nextAkt !== kruzenje)
-            this.nextAkt.currentFrameIdx = 0;
+        if(this.nextAkt !== kruzenje){
+        }
         this.nextAkt.previous = this;
-        this.particle_ind = 0*floor(random(0, 4));
-        this.numFrames = this.particles[0].lifespan;
+        this.numFrames = this.effect.duration;
         return this.nextAkt;
     }
 
@@ -175,7 +174,7 @@ class Pro {
         this.currentFrameIdx++;
         if(this.currentFrameIdx == this.numFrames && this === kruzenje)
             this.currentFrameIdx = 0;
-        //this.particles[this.particle_ind].display(24);
+        this.effect.display();
         if(frameCount % 2 == 0){
             //image(this.parent.getFrame(this.parent.currentFrameIdx), shiftx, shifty, width, height);
             //filter(ERODE);
@@ -205,6 +204,8 @@ toDataURL('http://gibaster.zapto.org:8089/curlr.php', function(dataUrl) {
     console.log('RESULT:', dataUrl)
 })*/
 
+var myfont;
+
 function preload() {
     background_image = loadImage('static/background_image.jpg')
     ulazak_gif = loadImage("static/1_white_ulazak.gif");
@@ -217,11 +218,17 @@ function preload() {
     idle2_gif = loadImage("static/idle_34.gif");
     idle3_gif = loadImage("static/idle_46.gif");
     idle4_gif = loadImage("static/idle_62.gif");
+    myfont = loadFont("static/CourierPrime-Regular.ttf");
+    //myfont = loadFont("static/VT323-Regular.ttf");
+    //myfont = loadFont("static/CutiveMono-Regular.ttf");
 }
 
 
 var shiftx = 2;
 var shifty = 10;
+var outters;
+var pwidth;
+var pheight;
 
 function setup() {
     canvas = createCanvas(905, 500);
@@ -232,13 +239,14 @@ function setup() {
 
     var par = select("#mcam");
     //canvas.style('z-index', 1000);
-    var pwidth = par.size()["width"]
-    var pheight = par.size()["height"]
+    pwidth = par.size()["width"]
+    pheight = par.size()["height"]
 
     if(windowWidth < windowHeight){
         om = 1.0*pwidth/pheight;
         pwidth = windowWidth;
         pheight = round(pwidth/om);
+        canvas.resize(pwidth, pheight);
         console.log(par.size())
         select("#drawingContainer").size(pwidth, pheight)
         select("#mcam").size(pwidth, pheight)
@@ -251,8 +259,10 @@ function setup() {
     shiftx = round(shiftx * pwidth/905.);
     shifty = round(shifty * pwidth/905.);
 
+    sca = pwidth/905.;
+
     resizeCanvas(pwidth, pheight);
-    background_image.resize(pwidth, pheight);
+    //background_image.resize(pwidth, pheight);
 
     rectMode(CENTER);
     
@@ -267,20 +277,50 @@ function setup() {
     idle3 = new Akt(idle3_gif);
     idle4 = new Akt(idle4_gif);
 
-    var pts0 = [0.36842105, 0.42207792, 0.37200957, 0.50865801, 0.22966507, 0.60606061, 0.25239234, 0.4025974];
-    var pts1 = [0.67344498, 0.42640693, 0.64712919, 0.35714286, 0.7284689, 0.3030303, 0.81220096, 0.45454545];
-    var pts2 = [0.51076555, 0.59307359, 0.6076555, 0.57142857, 0.73564593, 0.72943723, 0.46889952, 0.82467532];
-    var pts3 = [0.53110048, 0.30952381, 0.45574163, 0.32467532, 0.4007177, 0.25541126, 0.55023923, 0.23160173];
-    
-    // particles.push(new Particle(0, pts0));
-    // particles.push(new Particle(1, pts1));
-    // particles.push(new Particle(2, pts2));
-    // particles.push(new Particle(3, pts3));
+    var pts1 = [0.3769, 0.5426, 0.4620, 0.6006, 0.3946, 0.9100, 0.1913, 0.6786];
+    var pts2 = [0.6175, 0.5578, 0.6573, 0.4758, 0.8385, 0.5078, 0.7844, 0.7558];
+    var pts3 = [0.5624, 0.2338, 0.7171, 0.2998, 0.6121, 0.3678, 0.5414, 0.3338];
+    var pts4 = [0.2262, 0.3977, 0.3565, 0.2737, 0.4228, 0.3557, 0.3698, 0.4157];
 
-    pro1 = new Pro(idle1, [new Particle(0, pts0)]);
-    pro2 = new Pro(idle2, [new Particle(1, pts1)]);
-    pro3 = new Pro(idle3, [new Particle(2, pts2)]);
-    pro4 = new Pro(idle4, [new Particle(3, pts3)]);
+    outters =  [[0.7106814*pwidth, 0.2986666*pheight],
+                [0.5692449*pwidth, 0.2366666*pheight],
+                [0.5438305*pwidth, 0.2326666*pheight],
+                [0.3758747*pwidth, 0.2606666*pheight],
+                [0.3493554*pwidth, 0.2766666*pheight],
+                [0.2300184*pwidth, 0.3946666*pheight],
+                [0.2255985*pwidth, 0.4166666*pheight],
+                [0.1979742*pwidth, 0.6346666*pheight],
+                [0.1957642*pwidth, 0.6846666*pheight],
+                [0.3836095*pwidth, 0.8906666*pheight],
+                [0.4388582*pwidth, 0.8886666*pheight],
+                [0.7780847*pwidth, 0.7746666*pheight],
+                [0.7869244*pwidth, 0.7466666*pheight],
+                [0.8373112*pwidth, 0.5166666*pheight],
+                [0.8141068*pwidth, 0.4806666*pheight],
+                [0.7234990*pwidth, 0.3166666*pheight]];
+
+    outters =  [[0.567876*pwidth, 0.235714*pheight],
+                [0.710418*pwidth, 0.299714*pheight],
+                [0.712628*pwidth, 0.329714*pheight],
+                [0.793291*pwidth, 0.473714*pheight],
+                [0.833070*pwidth, 0.519714*pheight],
+                [0.785556*pwidth, 0.735714*pheight],
+                [0.719258*pwidth, 0.737714*pheight],
+                [0.451854*pwidth, 0.829714*pheight],
+                [0.382241*pwidth, 0.881714*pheight],
+                [0.199921*pwidth, 0.681714*pheight],
+                [0.222020*pwidth, 0.615714*pheight],
+                [0.244119*pwidth, 0.425714*pheight],
+                [0.234175*pwidth, 0.391714*pheight],
+                [0.350197*pwidth, 0.279714*pheight],
+                [0.392186*pwidth, 0.281714*pheight],
+                [0.535832*pwidth, 0.253714*pheight]];
+
+ 
+    pro1 = new Pro(idle1, new Rug(0, pts3, 60, 0.026, 1));
+    pro2 = new Pro(idle2, new DotMess(1, pts2, 60));
+    pro3 = new Pro(idle3, new Rug(2, pts1, 60, 0.02, 0));
+    pro4 = new Pro(idle4, new DotMess(3, pts4, 60));
 
     frameRate(10);
 
@@ -299,9 +339,12 @@ function setup() {
     
     // let loading_anim = select("#loading");
     // loading_anim.hide();
-    select("#mcam").style('opacity', 1.0);
+    // select("#mcam").style('opacity', 1.0);
     //select("#loading").style('opacity', 0.0);
     // fadeOutEffect();
+    textSize(26*pheight/500.);
+    textAlign(RIGHT, TOP);
+    textFont(myfont);
 }
 
 function draw() {
@@ -309,13 +352,30 @@ function draw() {
     clear();
     noStroke();
     fill(0);
-
+    image(background_image, 0, 0, pwidth, pheight);
     
-    blendMode(MULTIPLY);
-    image(background_image, 0, 0, width, height);
-
     translate(shiftx, shifty);
 
+    blendMode(BLEND);
+    var dday = day();
+    var mmonth = month();
+    var yyear = year();
+    var hhour = hour();
+    var mminute = minute();
+    var ssecond = second();
+
+    var text_label = String(day()).padStart(2, '0') + "/"
+    + String(month()).padStart(2, '0') + "/"
+    + String(year()) + " "
+    + String(hour()).padStart(2, '0') + ":"
+    + String(minute()).padStart(2, '0') + ":"
+    + String(second()).padStart(2, '0');
+
+    fill(180);
+    noStroke();
+    text(text_label,width-shiftx-6,-shifty+6);
+
+    blendMode(MULTIPLY);
     if(akt.currentFrameIdx == akt.numFrames && akt !== kruzenje){
         akt = akt.getNextAkt();
     }
@@ -349,132 +409,58 @@ function draw() {
         //pro1.parent.currentFrameIdx = (pro1.parent.currentFrameIdx + pro1.parent.numFrames - 1)%pro1.parent.numFrames;
         akt = pro1;
         akt.currentFrameIdx = 0;
+        akt.effect.age = 0;
         clicked = false;
-        for (var k = 0; k < akt.particles.length; k++) {
-            akt.particles[k].displayFlag = true;
-            akt.particles[k].age = round(random(-20, 0));
-        }
-        akt.numFrames = 20; // ovaj 100 mora bit varijabla za svaku proceduralnu animaciju
     }
     if(akt === kruzenje && (akt.previous === kruzenje || akt.previous === ulazak) && akt.currentFrameIdx == 33 && clicked){
         pro2.parent = akt;
         //pro2.parent.currentFrameIdx = (pro2.parent.currentFrameIdx + pro2.parent.numFrames - 1)%pro2.parent.numFrames;
         akt = pro2;
         akt.currentFrameIdx = 0;
+        akt.effect.age = 0;
         clicked = false;
-        for (var k = 0; k < akt.particles.length; k++) {
-            akt.particles[k].displayFlag = true;
-            akt.particles[k].age = round(random(-20, 0));
-        }
-        akt.numFrames = 20; // ovaj 100 mora bit varijabla za svaku proceduralnu animaciju
     }
     if(akt === kruzenje && (akt.previous === kruzenje || akt.previous === ulazak) && akt.currentFrameIdx == 45 && clicked){
         pro3.parent = akt;
         //pro3.parent.currentFrameIdx = (pro3.parent.currentFrameIdx + pro3.parent.numFrames - 1)%pro3.parent.numFrames;
         akt = pro3;
         akt.currentFrameIdx = 0;
+        akt.effect.age = 0;
         clicked = false;
-        for (var k = 0; k < akt.particles.length; k++) {
-            akt.particles[k].displayFlag = true;
-            akt.particles[k].age = round(random(-20, 0));
-        }
-        akt.numFrames = 20; // ovaj 100 mora bit varijabla za svaku proceduralnu animaciju
     }
     if(akt === kruzenje && (akt.previous === kruzenje || akt.previous === ulazak) && akt.currentFrameIdx == 61 && clicked){
         pro4.parent = akt;
         //pro4.parent.currentFrameIdx = (pro4.parent.currentFrameIdx + pro4.parent.numFrames - 1)%pro4.parent.numFrames;
         akt = pro4;
         akt.currentFrameIdx = 0;
+        akt.effect.age = 0;
         clicked = false;
-        for (var k = 0; k < akt.particles.length; k++) {
-            akt.particles[k].displayFlag = true;
-            akt.particles[k].age = round(random(-20, 0));
-        }
-        akt.numFrames = 20; // ovaj 100 mora bit varijabla za svaku proceduralnu animaciju
     }
 
     if(akt !== pro1 && akt !== pro2 && akt !== pro3 && akt !== pro4){
         var ss1 = Math.round(2*Math.sin(frameCount*0.1));
         var ss2 = Math.round(-1-1*Math.sin(frameCount*0.1));
-        //image(akt.getFrame((akt.currentFrameIdx+akt.numFrames-ss2)%akt.numFrames), 0, 0, width, height);
-        /*if(frameBuffer.length == bufferSize){
-            tint(255, 180 + 0*(0.5 + 0.5*sin(frameCount*0.2)));
-            image(frameBuffer[bufferSize-2], 0, 0, width, height);
-            tint(255, 100 + 0*(0.5 + 0.5*sin(frameCount*0.2)));
-            image(frameBuffer[bufferSize-3], 0, 0, width, height);
-        }*/
-        if(frameBuffer.length == bufferSize && ghost == true && false){
-            tint(255, 100, 200, random(50, 220) + 0*(0.5 + 0.5*sin(frameCount*0.2)));
-            image(frameBuffer[bufferSize-1], 0, 0, width, height);
-            if(random() < -0.5)
-                filter(INVERT);
-            tint(255, 200, 100, random(50, 220) + 0*(0.5 + 0.5*sin(frameCount*0.2)));
-            image(frameBuffer[bufferSize-2], 0, 0, width, height);
-            if(random() < -0.5)
-                filter(INVERT);
-            //filter(BLUR, 1);
-        }
-        //tint(255, 255);
         image(akt.advance(), 0, 0, width, height);
         if(random() < -0.5)
             filter(INVERT);
     }
     else{
-        blendMode(BLEND);
-        akt.advance();
-        blendMode(MULTIPLY);
-        image(akt.idle.advance(), 0, 0, width, height);
-        if(frameBuffer.length == bufferSize && (ghost == true || true) && false){
-            tint(255, 100, 200, random(50, 220) + 0*(0.5 + 0.5*sin(frameCount*0.2)));
-            image(frameBuffer[bufferSize-1], 0, 0, width, height);
-            if(random() < -0.5)
-                filter(INVERT);
-            tint(255, 200, 100, random(50, 220) + 0*(0.5 + 0.5*sin(frameCount*0.2)));
-            image(frameBuffer[bufferSize-2], 0, 0, width, height);
-            if(random() < -0.5)
-                filter(INVERT);
-            //filter(BLUR, 1);
+        if(akt === pro1 || akt === pro2){
+            blendMode(BLEND);
+            akt.advance();
+            blendMode(MULTIPLY);
+            image(akt.idle.advance(), 0, 0, width, height);
+        }
+        else{
+            blendMode(MULTIPLY);
+            image(akt.idle.advance(), 0, 0, width, height);
+            blendMode(BLEND);
+            akt.advance();
         }
         tint(255, 255);
     }
 
-    /*
-    if (playing || frameIdx != 0){
-        image(anims[anim_ind][frameIdx], -width/2*0, -height/2*0, width, height);
-        frameIdx = frameIdx + 1;
-        if (frameIdx >= anims[anim_ind].length){
-            playing = false;
-            frameIdx = 0;
-        }
-    }
-
-    for(var k = 0; k < particles.length*0+1; k++){
-        var gridnum = 30;
-        if(k == 2)
-            gridnum = 18;
-        particles[2].display(gridnum);
-    }*/
-
-    //rotate(radians(+12));
-    //applyMatrix(1, 0, shear_factor, 1, 0, 0);
-    /*clear();
-    particle.display(pg);
-
-    scale(0.5);
-
-    translate(-width/2, -height/2);
-    texture(pg);
-    beginShape();
-    vertex(473., 44., 0, 0);
-    vertex(762., 98., 1, 0);
-    vertex(611., 508., 1, 1);
-    vertex(85., 258., 0, 1);
-    endShape();*/
-
-    print(round(frameRate()))
-    if(ttime == "NIGHT"){
-        //filter(INVERT);
-    }
+    print(round(frameRate()));
 }
 
 function power(p, g) {
@@ -504,23 +490,11 @@ function keyPressed() {
     if (keyCode == 48) {
         ghost = !ghost;
     }
-
-    /*if(keyCode == 32){
-        playing = !playing;
-    }
-    else{
-        changeAnim = true;
-    }*/
 }
 
 function mouseClicked() {
     clicked = true;
-    //for (var k = 0; k < particles.length; k++) {
-    //    particles[k].displayFlag = true;
-    //    particles[k].age = round(random(-20, 0));
-    //}
-
-    print(mouseX, mouseY);
+    print(1.*mouseX/width, 1.*mouseY/height);
 }
 
 function touchStarted() {
@@ -528,26 +502,30 @@ function touchStarted() {
 }
 
 
-class Particle {
-    constructor(idx, pts) {
-        this.age = round(random(-20, 0));
+class Rug {
+    constructor(idx, pts, duration, detail, direction) {
+        this.age = 0;
         this.displayFlag = false;
-        this.lifespan = round(random(80, 100));
+        this.duration = duration;
         this.pts = pts;
         this.b = 0;
+        this.direction = direction;
+        this.idx = idx;
 
-        var x0 = this.pts[0] * width;
-        var y0 = this.pts[1] * height;
-        var x1 = this.pts[2] * width;
-        var y1 = this.pts[3] * height;
-        var x2 = this.pts[4] * width;
-        var y2 = this.pts[5] * height;
-        var x3 = this.pts[6] * width;
-        var y3 = this.pts[7] * height;
+        var x0 = this.pts[0] * pwidth;
+        var y0 = this.pts[1] * pheight;
+        var x1 = this.pts[2] * pwidth;
+        var y1 = this.pts[3] * pheight;
+        var x2 = this.pts[4] * pwidth;
+        var y2 = this.pts[5] * pheight;
+        var x3 = this.pts[6] * pwidth;
+        var y3 = this.pts[7] * pheight;
 
         this.points = []
-        for(var y = 0; y <= 1.0; y += 0.02){
-            for(var x = 0; x <= 1.0; x += 0.02){
+        var bgw = background_image.width;
+        var bgh = background_image.height;
+        for(var y = 0; y <= 1.0; y += detail){
+            for(var x = 0; x <= 1.0; x += detail){
                 var px = x;
                 var py = y;
 
@@ -559,30 +537,65 @@ class Particle {
                 var xx = lerp(xx1, xx2, py);
                 var yy = lerp(yy1, yy2, py);
                 
-                var col = background_image.get(Math.round(xx), Math.round(yy));
+                var col = background_image.get(Math.round(xx*bgw/pwidth), Math.round(yy*bgh/pheight));
 
                 this.points.push([xx, yy, col, px, py]);
             }
         }
     }
 
-    display(gridnum) {
+    display() {
 
-        gridnum = gridnum*2;
         this.age += 1;
 
-        noStroke();
         resetMatrix();
+        //scale(sca);
 
         if(this.age < 0)
             return;
         
         //translate(width/2, height/2);
         var fac = 1;
-        if (this.age-1 <= 10)
-            fac = (this.age-1) / 10;
-        if (this.age-1 > this.lifespan-10)
-            fac = 1 - ((this.age-1) - (this.lifespan - 10)) / 10;
+        if (this.age-1 <= effect_trans)
+            fac = (this.age-1) / effect_trans;
+        if (this.age-1 > this.duration-effect_trans)
+            fac = 1 - ((this.age-1) - (this.duration - effect_trans)) / effect_trans;
+      
+        noStroke();
+        for(var k = 0; k < this.points.length; k++){
+            var x = this.points[k][0];
+            var y = this.points[k][1];
+            var col = this.points[k][2];
+            var px = this.points[k][3];
+            var py = this.points[k][4];
+
+            var thr = 0.7;
+            var fadex = abs(px-0.5)/0.5;
+            if(fadex > thr)
+                fadex = (fadex-thr)/(1-thr);
+            else
+                fadex = 0;
+            fadex = 1 - fadex;
+            var fadey = abs(py-0.5)/0.5;
+            if(fadey > thr)
+                fadey = (fadey-thr)/(1-thr);
+            else
+                fadey = 0;
+            fadey = 1 - fadey;
+            var fade = pow(fadex * fadey, 3);
+
+            var rr = red(col)*0.6;
+            var gg = green(col)*0.6;
+            var bb = blue(col)*0.6;
+            var aa = alpha(col)*fade*0.4;
+            fill(rr, gg, bb, aa*fac);
+            var rx = 0*random(-2,2);
+            var ry = 0*random(-2,2) - 1.0*k/this.points.length*50*random(fac);
+            ry = py*fac*(25 + 25*cos(2*3.14*py*py+2*px-1+(0.5+(1-py)*0.5)*this.age*0.48));
+            ry = py*fac*(25 + 25*cos((0.5+(1-px)*0.5)*this.age*0.48));
+            fill(30, 200*fac);
+            ellipse(x+rx, y, 5*sca, 5*sca);
+        }
         
         noStroke();
         for(var k = 0; k < this.points.length; k++){
@@ -598,8 +611,123 @@ class Particle {
             fill(rr, gg, bb, aa*fac);
             var rx = 0*random(-2,2);
             var ry = 0*random(-2,2) - 1.0*k/this.points.length*50*random(fac);
-            ry = py*fac*(25 + 25*cos(2*3.14*py*py+2*px-1+(0.5+(1-py)*0.5)*frameCount*0.3));
-            ellipse(x+rx, y-ry, 5, 5);
+            var time = map(this.age, 0, this.duration-1, 0, 1);
+            time = 8*(1 - abs(time-0.5)/0.5);
+            if(this.direction == 0){
+                ry = (0.1+0.9*py)*fac*(25 + 25*cos((0.5+(1-px)*0.5)*time));
+                ry = (0.1+0.9*py)*fac*(25 + 25*sin((0.5+px*0.5)*5 + this.age*0.48));
+            }
+            else{
+                ry = (0.1+0.9*py)*fac*(25 + 25*cos((0.5+(1-py)*0.5)*time));
+                ry = (0.1+0.9*py)*fac*(25 + 25*sin((0.5+py*0.5)*5 + this.age*0.48));
+            }
+            var nz = noise(px*1,py*1,this.idx+this.age*0.2);
+            ry += fac*35*nz;
+            ellipse(x+rx, y-sca*ry, 5*sca, 5*sca);
+        }
+
+    }
+}
+
+class DotMess {
+    constructor(idx, pts, duration) {
+        this.age = 0;
+        this.displayFlag = false;
+        this.duration = duration;
+        this.pts = pts;
+        this.b = 0;
+
+        this.x0 = this.pts[0] * width;
+        this.y0 = this.pts[1] * height;
+        this.x1 = this.pts[2] * width;
+        this.y1 = this.pts[3] * height;
+        this.x2 = this.pts[4] * width;
+        this.y2 = this.pts[5] * height;
+        this.x3 = this.pts[6] * width;
+        this.y3 = this.pts[7] * height;
+    }
+
+    display() {
+
+        this.age += 1;
+
+        noStroke();
+        resetMatrix();
+        //scale(sca);
+
+        if(this.age < 0)
+            return;
+        
+        var fac = 1;
+        if (this.age-1 <= effect_trans)
+            fac = (this.age-1) / effect_trans;
+        if (this.age-1 > this.duration-effect_trans)
+            fac = 1 - ((this.age-1) - (this.duration - effect_trans)) / effect_trans;
+        
+        fill(0);
+        noStroke();
+        stroke(0);
+        noFill();
+        strokeWeight(1.4);
+        for(var k = 0; k < 130; k++){
+            var px = random(1);
+            var py = 2;
+
+            var xx1 = lerp(this.x0, this.x1, px);
+            var yy1 = lerp(this.y0, this.y1, px);
+            var xx2 = lerp(this.x3, this.x2, px);
+            var yy2 = lerp(this.y3, this.y2, px);
+
+            var xx = lerp(xx1, xx2, py);
+            var yy = lerp(yy1, yy2, py);
+
+            var rr = fac * random(3, 5);
+            //ellipse(xx, yy, rr, rr);
+
+            //stroke(0, fac*random(255));
+            //line(xx1,yy1,xx2,yy2);
+        }
+        
+        noStroke();
+        for(var k = 0; k < 3; k++){
+            var seq = (3-k)/3.;
+            var pt1 = ((this.age+outters.length-k)*2)%outters.length;
+            var pt2 = (pt1+1)%outters.length;
+            var x1 = outters[outters.length-1-pt1][0];
+            var y1 = outters[outters.length-1-pt1][1];
+            var x2 = outters[outters.length-1-pt2][0];
+            var y2 = outters[outters.length-1-pt2][1];
+            var d1 = dist(x1,y1,width/2,height/2);
+            var d2 = dist(x1,y1,width/2,height/2);
+            var dx1 = (x1 - width/2)/d1;
+            var dy1 = (y1 - height/2)/d1;
+            var dx2 = (x2 - width/2)/d2;
+            var dy2 = (y2 - height/2)/d2;
+
+            var y11 = y1 - sca*random(24, 80)*fac*seq;
+            var y22 = y2 - sca*random(24, 80)*fac*seq;
+
+            for(var ww = 0; ww < 4; ww++){
+                fill(0, random(50, 160)*fac);
+                noStroke();
+                beginShape();
+                vertex(x1, y1);
+                vertex(x1+sca*random(-20, 20), y11+sca*random(-20, 6));
+                vertex(x2+sca*random(-20, 20), y22+sca*random(-20, 6));
+                vertex(x2, y2);
+                endShape();
+            }
+            //line(x1, y11, x1+5*dx1, y11+5*dy1);
+            //line(x2, y22, x2+5*dx2, y22+5*dy2);
+
+            stroke(0, 255*fac);
+            for(var qq = 0; qq < 20; qq++){
+                var xx1 = x1 + 2*random(-1,1);
+                var yy1 = y1 - 10*random(-0,1);
+                var xx2 = xx1 + 2*random(-1,1);
+                var yy2 = yy1 - 10*random(-0,1);
+                //line(xx1, yy1, xx2, yy2);
+            }
         }
     }
 }
